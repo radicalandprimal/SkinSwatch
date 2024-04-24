@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Loading...</title>
+<link href="static/style.css?v=9" type="text/css" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#9873ac" />
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-43289810-3"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-43289810-3');
+</script>
+<script crossorigin="anonymous" src="https://polyfill.io/v3/polyfill.min.js?features=String.prototype.replaceAll%2CArray.prototype.includes%2CObject.keys%2CObject.values"></script>
+<script src="static/jquery.js"></script>
+<script src="static/skinview.js"></script>
+<script src="static/mergeimages.js"></script>
+<script>
+				var version='ver.5def4548';
+                var skinViewer = false;
+                var viewerErrored = false;
+
+                var available_skins = [];
+
+                var bodyparts_names = {
+                	'head': 'Head',
+                	'headA': 'Helmet',
+                	'armRight': 'Right Arm',
+                	'armRightA': 'Right Arm Armor',
+                	'armLeft': 'Left Arm',
+                	'armLeftA': 'Left Arm Armor',
+                	'legRight': 'Right Leg',
+                	'legRightA': 'Right Leg Armor',
+                	'legLeft': 'Left Leg',
+                	'legLeftA': 'Left Leg Armor',
+            		'body': 'Body',
+            		'bodyA': 'Body Armor',
+            		'all': 'Everything'
+                }
+
+                var skins_merge = {
+                	'head': '',
+                	'headA': '',
+                	'armRight':'',
+                	'armLeft':'',
+                	'legRight':'',
+                	'legRightA':'',
+                	'legLeft':'',
+                	'legLeftA':'',
+                	'armRightA':'',
+                	'armLeftA':'',
+                	'body':'',
+                	'bodyA':'',
+                }
+
+                $(function() {
+                	// load skin list
+                	$.getJSON('static/skins.json', function(data) {
+                		// dump the skins into the available skins list.
+                		$.each(data.skins, function(_,k){
+                			if (!available_skins.includes(k)) {
+                				available_skins.push(k);
+                			}
+                		});
+
+                		// set skin to default.png
+                		setPartSkin('default.png','all');
+
+                		// do some initial stuff
+                		initialDraw();
+
+                		// generate control elements
+                		createControls();
+
+                		// wait to show the editor for a little to allow things to process in the background.
+                		setTimeout(hideLoad, 700);
+                	});
+                });
+
+                function randomize(do_confirm) {
+                	// randomize all body parts
+                	// `do_confirm` asks the user if they are sure they want to randomize
+                	if (typeof(do_confirm) == "undefined") {
+                		do_confirm = false;
+                	}
+
+                	var confirmed = true;
+
+                	if (do_confirm) {
+                		confirmed = confirm("Randomize all body parts? You will lose your current setup.");
+                	}
+
+                	// `confirmed` is false if user hit 'cancel' on the `confirm` dialogue
+                	if (confirmed) {
+
+                		// loop through skin keys
+                		$.each(Object.keys(skins_merge), function(_,k){
+                			var arr_skins = available_skins;
+                			// if it's an armor piece, add 'nothing' to the possible list
+                			if (k[k.length-1] == "A") {
+                				arr_skins = ['nothing'].concat(arr_skins);
+                			}
+                			setPartSkin(arr_rand(arr_skins), k);
+                		});
+                	}
+                	doMerge();
+                }
+
+                function initialDraw() {
+                	initSkinViewer();
+                	doMerge();
+                }
+
+                function createControls() {
+                	$.each(skins_merge, function(k,v) {
+                		var selector = '#container_'+k;
+                		var el = $('#container_'+k);
+
+                		var added = '<div class="prev">&lsaquo;</div><div class="bpname">'+skin_name_pretty(skins_merge[k])+'</div><div class="next">&rsaquo;</div>';
+                		el.html(added);
+                		el.children('.bpname').click(function() {
+                			showSkinList(k)
+                		});
+                		el.attr({'data-skin':skins_merge[k], 'data-part':k});
+                	});
+
+                	$('.prev').click(prevSkin);
+                	$('.next').click(nextSkin);
+                }
+
+                function closeSkinList() {
+                	$('#skinlist_cont').removeClass('visible');
+                }
+
+                function showSkinList(bodypart) {
+                	populateSkinList(bodypart);
+                	$('#skinlist_cont').addClass('visible');
+                }
+
+                function populateSkinList(bodypart) {
+                	$('#skinlist_cont h2').text("Choose a skin to use for "+bodyparts_names[bodypart])
+                	var skinlist = $('#skinlist');
+                	skinlist.html('');
+
+                	var tmp_arr = available_skins;
+                	if (bodypart[bodypart.length-1] == "A") {
+                		tmp_arr = ['nothing'].concat(tmp_arr);
+                	}
+
+                	$.each(tmp_arr, function(k,v) {
+                		var e = $('<li data-skin="'+v+'">'+skin_name_pretty(v)+'</li>');
+                		e.click(function() {
+                			var skin = $(this).attr('data-skin');
+	                		setPartSkin(skin, bodypart);
+                			doMerge();
+	                		closeSkinList();
+                		});
+                		skinlist.append(e);
+                	});
+
+                	return true;
+                }
+
+                function hideLoad() {
+                	$('#loading').addClass('loaded')
+                }
+
+                function prevSkin(ev) {
+                	changeSkin(-1, ev);
+                }
+
+                function nextSkin(ev) {
+                	changeSkin(1, ev);
+                }
+
+                function changeSkin(dir, ev) {
+                	var c_el = $(event.target).parents('div');
+                	var old_skin = c_el.attr('data-skin');
+                	var bodypart = c_el.attr('data-part');
+                	var skin_arr = available_skins;
+                	if (bodypart[bodypart.length-1] == 'A') {
+                		skin_arr = ['nothing'].concat(available_skins);
+                	}
+                	var old_skin_idx = skin_arr.indexOf(old_skin);
+                	var new_skin_idx = dir + old_skin_idx;
+                	if (new_skin_idx > (skin_arr.length - 1)) {
+                		new_skin_idx = 0;
+                	}
+
+                	if (new_skin_idx < 0) {
+                		new_skin_idx = skin_arr.length - 1
+                	}
+
+                	setPartSkin(skin_arr[new_skin_idx],bodypart);
+                	doMerge();
+                }
+
+                function setPartSkin(skinName, bodypart) {
+                	if (bodypart == 'all') {
+                		$.each(Object.keys(skins_merge), function(_,v) {
+                			setPartSkin(skinName,v);
+                		});
+                		return;
+                	}
+                	var el = $('#container_'+bodypart);
+                	skins_merge[bodypart] = skinName;
+                	el.attr({'data-skin':skinName});
+                	el.children('.bpname').text(skin_name_pretty(skins_merge[bodypart]));
+                }
+
+				function arr_rand(list) {
+				  return list[Math.floor((Math.random()*list.length))];
+				} 
+
+                function doMerge(){ 
+
+                	var imerge = [];
+
+
+                	for (var bpn in skins_merge) {
+                		if (skins_merge[bpn] != '' && skins_merge[bpn] != 'nothing') {
+                			imerge = imerge.concat(bp('static/parts/'+skins_merge[bpn], bpn))
+                		}
+                	}
+
+                	mergeImages(imerge).then(function(b64){
+                		skinViewer.skinUrl = b64; 
+                	});
+                }
+
+                function skin_name_pretty(sn) {
+                	var newname = ""+sn;
+                	newname = newname.replaceAll('.png', '');
+                	newname = newname.replaceAll('-', ' ');
+                	newname = toTitleCase(newname);
+                	return newname;
+                }
+
+				function toTitleCase(str) {
+				    return str.replace(/\w\S*/g, function(txt){
+				        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+				    });
+				}
+
+				function saveSkin(e) {
+					var a = document.createElement("a");
+					a.href = skinViewer.skinUrl;
+					a.setAttribute("download", "char.png");
+					a.click();
+					return false;
+				}
+
+				function uploadSkin(e) {
+					var tmp_form = $("<form style='display:none' method='POST' target='_blank' action='https://www.classicube.net/acc/remoteskin/'><input type='submit'><input type='text' value='"+skinViewer.skinUrl+"' name='skin64'></form>");
+					$('body').append(tmp_form)
+					tmp_form.submit();
+					tmp_form.remove();
+				}
+
+                function bp(skin,bpn) {
+                	var sr = skinRegions[bpn]
+                	var ret = []
+
+                	var i;
+                	for (i=0; i<sr.length; i++) {
+                		var bb = sr[i];
+                		var tmp = {
+                			src: skin,
+                			xx: bb[0],
+                			yy: bb[1],
+                			w: bb[2],
+                			h: bb[3],
+                			width: 128,
+                			height: 128
+                		}
+                		ret.push(tmp);
+                	}
+                	return ret;
+                }
+
+                function initSkinViewer() {
+                	var el = $('#skinViewer');
+                    skinViewer = new skinview3d.SkinViewer({
+                        domElement: el[0],
+                        width:(el.height()*.8),
+                        height:(el.height()),
+                        enableRotate: true
+                    });
+
+                    skinViewer.skinImg.onerror = function(e) {
+                        if (viewerErrored) {
+                            return;
+                        }
+                        viewerErrored = true;
+                        skinViewer.skinUrl = 'static/parts/default.png';
+                    }
+
+                    var rotate = skinViewer.animations.add(skinview3d.RotatingAnimation);
+                    var control = skinview3d.createOrbitControls(skinViewer);
+                    var run = skinViewer.animations.add(skinview3d.RunningAnimation);
+
+
+                    control.enableRotate = true;
+					control.enableZoom = false;
+					control.enablePan = false;
+
+                    rotate.speed = 0;
+                    skinViewer.playerObject.rotation.y = 70;
+                    run.speed = 0.1;
+                    run.paused = false;
+
+
+                }
+
+                // region arrays: [x,y,w,h]
+                // copied wholesale onto the blank canvas on change
+                var skinRegions = {
+                	head: [
+                		[8,0,16,8],
+                		[0,8,32,8]
+                	],
+                	headA: [
+                		[40,0,16,8],
+                		[32,8,32,8]
+                	],
+                	legRight: [
+                		[4,16,8,4],
+                		[0,20,16,12]
+                	],
+                	legRightA: [
+                		[4,32,8,4],
+                		[0,36,16,12]
+                	],
+                	legLeft: [
+                		[20,48,8,4],
+                		[16,52,16,12]
+                	],
+                	legLeftA: [
+                		[4,48,8,4],
+                		[0,52,16,12]
+                	],
+                	armRight: [
+                		[44,16,8,4],
+                		[40,20,16,12]
+                	],
+                	armRightA: [
+                		[44,32,8,4],
+                		[40,36,16,12]
+                	],
+                	armLeft: [
+                		[36,48,8,4],
+                		[32,52,16,12]
+                	],
+                	armLeftA: [
+                		[52,48,8,4],
+                		[48,52,16,12]
+                	],
+                	body: [
+                		[20,16,16,4],
+                		[16,20,24,12]
+                	],
+                	bodyA: [
+                		[20,32,16,4],
+                		[16,36,24,12]
+                	]
+                }
+            </script>
+</head>
+<body>
+<div id="loading">
+<h3>Loading...</h3>
+</div>
+<div id="header">
+<h1><a href id="site_name">SkinSwatch</a></h1>
+<ul><li><a id="savebtn" onclick="saveSkin()">💾</a></li><li><a id="ccbtn" onclick="uploadSkin()"><img src="static/cc-logo.svg"></a></ul>
+</div>
+<div id="main">
+<div id="control_underlay"><div></div></div>
+<div id="left">
+<div id="skinViewer"></div>
+</div>
+<div id="right">
+<input type="checkbox" checked name="show_controls" id="show_controls" style="display:none;">
+<div id="controls">
+<ul id="controls_extra">
+<li id="picker_all" onclick="showSkinList('all')">Set All</li>
+<li id="randomize" onclick="randomize(true)">Randomize</li>
+</ul>
+<label for="show_controls">Toggle Controls</label>
+<div class="c_container center" id="c_head">
+<h2>Head</h2>
+<div id="container_head"></div>
+<div id="container_headA"></div>
+</div>
+<div class="c_container left" id="c_armRight">
+<h2>Right Arm</h2>
+<div id="container_armRight"></div>
+<div id="container_armRightA"></div>
+</div>
+<div class="c_container right" id="c_armLeft">
+<h2>Left Arm</h2>
+<div id="container_armLeft"></div>
+<div id="container_armLeftA"></div>
+</div>
+<div class="c_container center" id="c_body">
+<h2>Body</h2>
+<div id="container_body"></div>
+<div id="container_bodyA"></div>
+</div>
+<div class="c_container left" id="c_legRight">
+<h2>Right Leg</h2>
+<div id="container_legRight"></div>
+<div id="container_legRightA"></div>
+</div>
+<div class="c_container right" id="c_legLeft">
+<h2>Left Leg</h2>
+<div id="container_legLeft"></div>
+<div id="container_legLeftA"></div>
+</div>
+</div>
+</div>
+</div>
+<div id="skinlist_cont">
+<h2></h2>
+<a onclick="closeSkinList()">Cancel</a>
+<div style="clear:both;"></div>
+<ul id="skinlist">
+</ul>
+</div>
+<script>
+		var el = document.getElementById('site_name');
+		document.title = "SkinSwatch Skin Creator";
+		el.innerHTML = el.innerHTML + ' <span id="verstring">' + version + '</span>';
+	</script>
+</body>
+</html>

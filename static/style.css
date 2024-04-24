@@ -1,0 +1,524 @@
+/* http://meyerweb.com/eric/tools/css/reset/ 
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+* {
+	box-sizing: border-box;
+	font-family: sans-serif !important;
+}
+
+html {
+}
+
+canvas {
+	outline: none !important;
+}
+
+html, body {
+	background: #130b15;
+	/*min-width: 640px;
+	min-height: 480px;*/
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	position: absolute;
+	overflow: hidden;
+}
+
+h1 a {
+	font-size: 32px;
+}
+
+h1 a, #loading h3 {
+	text-shadow: 2px 2px 4px rgba(0,0,0,.5);
+	color: #eee;
+	text-decoration: none;
+	font-family: sans-serif;
+}
+
+#loading {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	background: #9873ac;
+	z-index: 5000;
+	transition: 1s height ease-out;
+	overflow: hidden;
+}
+
+#loading.loaded {
+	height: 0;
+}
+
+#loading h3 {
+	font-size: 32px;
+	line-height: 55px;
+	color: #fff;
+	padding: 0;
+	margin: 0 0 0 20px;
+}
+
+#tmpCvs {
+	opacity: 0;
+	width: 0;
+	height: 0;
+	position: fixed;
+	left: 150%;
+	top: 150%;
+}
+
+#header {
+	background: #9873ac;
+	height: 55px;
+	line-height: 55px;
+	padding: 0 20px;
+	box-sizing: border-box;
+	position: absolute;
+	top: 0;
+	width: 100%;
+}
+
+#header > * {
+	display: inline-block;
+}
+
+#header ul, #header ul li {
+	float: right;
+	list-style-type: none;
+	display: inline-block;
+	margin: 0;
+	padding: 0;
+}
+
+#header ul li a {
+	float: left;
+	display: inline-block;
+	width: 41px;
+	height: 45px;
+	margin: 5px;
+	text-align: center;
+	line-height: 41px;
+	border-radius: 8px;
+	border-bottom: 4px solid #674b76;
+	background: #be99d2;
+	transition: .1s all linear;
+	cursor: pointer;
+	box-shadow: 0 2px 5px rgba(0,0,0,.6);
+	text-decoration: none;
+}
+
+#header ul li a::selection {
+	background: transparent;
+}
+
+#header ul li a:hover {
+	background: #d7b4ea;
+	border-bottom-color: #826293;
+}
+
+#header ul li a:active {
+	background: #674b76;
+	border-bottom-width: 0;
+	margin-top: 9px;
+	height: 41px;
+	box-shadow: 0 5px 5px rgba(0,0,0,.5) inset;
+}
+
+#verstring {
+	font-size: 30%;
+	font-weight: bold;
+}
+
+#ccbtn img {
+	width: 25px;
+	height: 25px;
+	margin-top: 8px;
+}
+
+#main {
+	height: calc(100% - 55px);
+	box-sizing: border-box;
+	width: 100%;
+	position: absolute;
+	bottom: 0;
+}
+
+#left, #right {
+	width: 90%;
+	left: 5%;
+	box-sizing: border-box;
+	height: 100%;
+	position: absolute;
+}
+
+#control_underlay {
+	width: 90%;
+	left: 5%;
+	position: absolute;
+	height: 100%;
+	padding: 5px;
+}
+
+#control_underlay div {
+	width: 100%;
+	height: 100%;
+	position: relative;
+	background: rgba(255,255,255,.2);
+	border-radius: 30px;
+
+}
+
+#right {
+	right: 0;
+}
+
+input + #controls .c_container {
+	display: none;
+}
+
+input + #controls label {
+	background: rgba(255,255,255,.1);
+}
+
+input:checked + #controls .c_container {
+	display: block;
+}
+
+input:checked + #controls label {
+	background: rgba(255,255,255,.5);
+}
+
+#controls_extra {
+	margin: 15px 0 0 15px;
+	width: 120px;
+	text-align: center;
+}
+
+#controls_extra li{
+	background: #9873ac;
+	margin: 0 0 15px;
+	padding: 10px 0;
+	font-size: 14px;
+	display: block;
+	clear: both;
+	border-radius: 30px;
+	font-weight: bold;
+	color: #fff;
+	cursor: pointer;
+	text-shadow: 2px 1px 3px rgba(0,0,0,.4);
+}
+
+#controls > label {
+	position: absolute;
+	right: 15px;
+	top: 15px;
+	font-weight: bold;
+	padding: 5px 10px;
+	font-size: 14px;
+	border-radius: 40px;
+	cursor: pointer;
+	transition: .2s background ease-out;
+}
+
+#controls > label::selection {
+	background: transparent;
+}
+
+input + #controls > label:hover {
+	background: rgba(255,255,255,.9);
+}
+
+#controls {
+	width: 100%;
+	height: 100%;
+	z-index: 20;
+	position: relative;
+}
+
+#controls > * {
+	z-index: 30;
+}
+
+#skinViewer {
+	display: block;
+	width: 100%;
+	height: 100%;
+	margin: 0 auto;
+	text-align: center;
+	z-index: 20;
+}
+
+#skinViewer canvas {
+	position: relative;
+	display: inline-block;
+	object-fit: contain;
+	max-height: 100% !important;
+	max-width: 100% !important;
+	width: 100% !important;
+	height: 100% !important;
+	image-rendering: pixelated;
+	image-rendering: crisp-edges;
+	z-index: 12;
+}
+
+.c_container {
+	width: 130px;
+	height: 120px;
+	background: rgba(40,40,40,.9);
+	position: absolute;
+	border-radius: 8px;
+	padding: 5px;
+	color: #fff;
+}
+
+.c_container.left {
+	left: 25px;
+}
+
+.c_container.right {
+	right: 25px;
+}
+
+.c_container.center {
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+.c_container h2 {
+	color: #fff;
+	font-weight: bold;
+	text-align: center;
+	border-bottom: 1px rgba(255,255,255,.6) solid;
+	padding: 5px 0 0;
+}
+
+.c_container h2, .c_container > div {
+	height: 30px;
+	width: calc(100% - 10px);
+}
+
+.c_container > div:last-child {
+	border-bottom: 0;
+}
+
+.c_container > div {
+	margin-top: 8px;
+}
+
+#c_head {
+	top: 20px;
+}
+
+#c_body {
+	top: 50%;
+}
+
+#c_armRight, #c_armLeft {
+	top: 25%;
+}
+
+#c_legRight, #c_legLeft {
+	bottom: 25px;
+}
+
+.c_container .prev, .c_container .next, .c_container .bpname {
+	height: 30px;
+	line-height: 30px;
+	text-align: center;
+	display: inline-block;
+	float: left;
+}
+
+.c_container .prev, .c_container .next {
+	width: 30px;
+	height: 30px;
+	line-height: 26px;
+	background: rgba(255,255,255,.6);
+	color: #000;
+	text-align: center;
+	font-weight: bold;
+	cursor: pointer;
+	float: left;
+	transition: .1s background ease-in-out;
+	font-size: 24px;
+}
+
+.c_container .prev {
+	border-top-left-radius: 30px;
+	border-bottom-left-radius: 30px;
+}
+
+.c_container .next {
+	border-top-right-radius: 30px;
+	border-bottom-right-radius: 30px;
+}
+
+.c_container .prev:hover, .c_container .next:hover {
+	background: rgba(255,255,255,.9);
+}
+
+.c_container .prev::selection, .c_container .next::selection {
+	background: transparent;
+}
+
+.c_container .next {
+	float: right;
+}
+
+.c_container .bpname {
+	font-size: 10px;
+	width: calc(100% - 60px);
+	font-weight: bold;
+	overflow: hidden;
+	cursor: pointer;
+	background: rgba(0,0,0,.5);
+}
+
+#skinlist_cont {
+	position: absolute;
+	height: 0;
+	width: 100%;
+	top: 0;
+	left: 0;
+	background: #130b15;
+	z-index: 3000;
+	transition: .4s height ease-out;
+	overflow: hidden;
+}
+
+#skinlist_cont.visible {
+	height: 100%;
+	overflow: auto;
+}
+
+#skinlist_cont h2 {
+	font-size: 40px;
+	margin: 15px 0 0 15px;
+	font-weight: bold;
+	color: #fff;
+	float: left;
+}
+
+#skinlist_cont > a {
+	float: right;
+	margin: 15px 15px 0 0;
+	padding: 10px 20px;
+	background: rgb(255 98 98);
+	display: inline-block;
+	cursor: pointer;
+	border-radius: 40px;
+	color: #fff;
+	font-weight: bold;
+}
+
+#skinlist {
+	display: block;
+	list-style-type: none;
+	column-width: 170px;
+	column-gap: 25px;
+	width: calc(100% - 30px);
+	padding: 15px;
+	margin: 20px auto 0;
+}
+
+#skinlist li {
+	cursor: pointer;
+	padding: 15px 15px;
+	background: rgba(255,255,255,.3);
+	font-weight: bold;
+	border-radius: 30px;
+	display: block;
+	-webkit-column-break-inside: avoid;
+	page-break-inside: avoid;
+	break-inside: avoid;
+	margin: 0 0 15px 0;
+	transition: .1s background ease-in-out;
+}
+
+#skinlist li:hover {
+	background:  rgba(255,255,255,.8);
+}
+
+
+/* responsiveness */
+
+@media only screen and (min-width: 600px) {
+	.c_container {
+		width: 200px;
+	}
+}
+
+@media only screen and (min-width: 980px) {
+  /* For desktop: */
+  .c_container {
+  	width: 230px;
+  }
+
+  #left, #right, #control_underlay {
+  	width: 50%;
+  	left: unset;
+  	right: unset;
+  }
+  #left {
+  	left: 0;
+  }
+
+  #right, #control_underlay {
+  	right: 0;
+
+  }
+
+  input + #controls .c_container {
+  	opacity: 1 !important;
+  }
+
+  #controls > label {
+  	display: none;
+  }
+}
